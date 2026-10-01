@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   PermissionsAndroid,
   Linking,
@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import { BASE_SHIP_FEE, VARIANT } from '@constants/student';
+import { useCartStore } from '@stores/cartStore';
 
 // Tọa độ cổng KTX cố định trong code
 const KTX_LAT = 10.8537;
@@ -45,8 +46,17 @@ function calcShipFee(km: number): number {
 
 export function useCampusLocation(): CampusLocationResult {
   const [status, setStatus] = useState<LocationStatus>('idle');
-  const [km, setKm] = useState<number | null>(null);
-  const [shipFee, setShipFee] = useState<number | null>(null);
+  const storeShipFee = useCartStore(s => s.shipFee);
+  const storeKm = useCartStore(s => s.km);
+  const setStoreShipFee = useCartStore(s => s.setShipFee);
+
+  const [km, setKm] = useState<number | null>(storeKm);
+  const [shipFee, setShipFee] = useState<number | null>(storeShipFee);
+
+  useEffect(() => {
+    if (storeKm !== null) setKm(storeKm);
+    if (storeShipFee !== null) setShipFee(storeShipFee);
+  }, [storeKm, storeShipFee]);
 
   const requestPermission = useCallback(async () => {
     try {
@@ -69,14 +79,21 @@ export function useCampusLocation(): CampusLocationResult {
               const userLat = pos.coords.latitude;
               const userLng = pos.coords.longitude;
               const distKm = haversineKm(userLat, userLng, KTX_LAT, KTX_LNG);
-              setKm(Math.round(distKm * 100) / 100);
-              setShipFee(calcShipFee(distKm));
+              const roundedKm = Math.round(distKm * 10) / 10;
+              const fee = calcShipFee(distKm);
+              setKm(roundedKm);
+              setShipFee(fee);
+              setStoreShipFee(fee, roundedKm);
             },
             _err => {
-              setKm(0);
-              setShipFee(calcShipFee(0));
+              // Mock tọa độ mẫu ~1.2km cho máy ảo/thiết bị trong nhà
+              const mockKm = 1.2;
+              const fee = calcShipFee(mockKm);
+              setKm(mockKm);
+              setShipFee(fee);
+              setStoreShipFee(fee, mockKm);
             },
-            { enableHighAccuracy: false, timeout: 10000 },
+            { enableHighAccuracy: false, timeout: 8000 },
           );
         } else if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
           setStatus('blocked');
@@ -98,7 +115,7 @@ export function useCampusLocation(): CampusLocationResult {
     } catch (_e) {
       setStatus('denied');
     }
-  }, []);
+  }, [setStoreShipFee]);
 
   return { status, km, shipFee, requestPermission };
 }

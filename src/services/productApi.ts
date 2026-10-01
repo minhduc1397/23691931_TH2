@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import apiClient from './apiClient';
+import apiClient from '@services/apiClient';
 import { STALE_TIME_MS } from '@constants/student';
 
 export interface Product {
