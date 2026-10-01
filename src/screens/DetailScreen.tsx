@@ -91,7 +91,11 @@ const DetailScreen: React.FC = () => {
         <Text style={styles.stackTag}>Stack</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Khối ảnh nền pastel */}
         <View style={styles.imageBlock}>
           <Image
@@ -113,7 +117,7 @@ const DetailScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Nút Thêm vào giỏ · Haptic */}
+      {/* Nút Thêm vào giỏ · Haptic (nằm gọn phía trên Watermark) */}
       <View style={styles.bottomBar}>
         <TouchableOpacity
           style={styles.addBtn}
@@ -158,9 +162,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: FONT_SIZE.sm,
   },
+  scrollView: {
+    flex: 1,
+  },
   content: {
     padding: SPACING.md,
-    paddingBottom: 90,
+    paddingBottom: 20,
   },
   imageBlock: {
     width: '100%',
@@ -206,12 +213,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
   bottomBar: {
-    position: 'absolute',
-    bottom: 24,
-    left: 0,
-    right: 0,
     paddingHorizontal: SPACING.lg,
-    backgroundColor: 'transparent',
+    paddingVertical: 10,
+    backgroundColor: COLORS.background,
   },
   addBtn: {
     backgroundColor: COLORS.primary,

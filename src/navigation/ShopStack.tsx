@@ -31,7 +31,7 @@ const ShopStack: React.FC = () => {
         component={DetailScreen}
         options={{
           title: 'Chi tiết',
-          // presentation: card (số cuối 1 → card, không phải modal)
+          headerShown: false,
           presentation: 'card',
         }}
       />
